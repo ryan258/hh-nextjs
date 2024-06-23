@@ -1,10 +1,12 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search, Phone, Globe, Clock, Facebook, Instagram, MapPin } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+// import { Toggle } from "@/components/ui/toggle";
+import { Badge } from "@/components/ui/badge";
 import {
   Accordion,
   AccordionContent,
@@ -19,7 +21,7 @@ const sampleDeals: Restaurant[] = [
     "name": "Twin Peaks",
     "location": "Rogers",
     "address": "2400 S PROMENADE BLVD, ROGERS, AR",
-    "phone": "", // Not provided in the PDF
+    "phone": "(479) 202-5907",
     "website": "https://twinpeaksrestaurant.com/locations/rogers-ar",
     "facebook": "https://www.facebook.com/TwinPeaksRogers/",
     "instagram": "https://www.instagram.com/rogerstwinpeaks/",
@@ -255,11 +257,16 @@ const sampleDeals: Restaurant[] = [
       sunday: ['$2.75 Domestics', '$3.75 Craft/Import Drafts']
     },
     happyHours: [
-      {
-        time: '3-6pm',
-        specials: ['$2 Domestic Pints', '$3 Craft Pints', '$6 Select Apps'],
-        dow: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
-      }
+        {
+          time: '3-6pm',
+          specials: ['$2 Domestic Pints', '$3 Craft Pints', '$6 Select Apps'],
+          dow: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday']
+        },
+        {
+            time: '2-6pm',
+            specials: ['$2 Domestic Pints', '$3 Craft Pints', '$6 Select Apps'],
+            dow: ['sunday']
+          }
     ]
   },
   // Add more restaurants here as needed
@@ -269,11 +276,18 @@ const HappyHourNavigator: React.FC = () => {
       const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
       return days[new Date().getDay()];
     };
-  
+    
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedDay, setSelectedDay] = useState<string | null>(getDayOfWeek());
     const [deals, setDeals] = useState<Restaurant[]>(sampleDeals);
-  
+    const [currentTime, setCurrentTime] = useState(new Date());
+    
+    useEffect(() => {
+        const timer = setInterval(() => setCurrentTime(new Date()), 60000); // Update every minute
+        return () => clearInterval(timer);
+    }, []);
+    
+
     const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
       setSearchTerm(event.target.value);
     };
@@ -287,27 +301,68 @@ const HappyHourNavigator: React.FC = () => {
       const minutes = time % 100;
       return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
     };
+
+    const isHappyHourActive = (restaurant: Restaurant) => {
+    const dayOfWeek = currentTime.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+        const currentHour = currentTime.getHours() * 100 + currentTime.getMinutes();
+
+        return restaurant.happyHours.some(happyHour => 
+            happyHour.dow.includes(dayOfWeek) &&
+            parseTime(happyHour.time.split('-')[0]) <= currentHour &&
+            parseTime(happyHour.time.split('-')[1]) > currentHour
+        );
+    };
+
+    const getTimeUntilNextHappyHour = (restaurant: Restaurant) => {
+    const dayOfWeek = currentTime.toLocaleDateString('en-US', { weekday: 'long' }).toLowerCase();
+    const currentHour = currentTime.getHours() * 100 + currentTime.getMinutes();
+
+    const upcomingHappyHour = restaurant.happyHours.find(happyHour => 
+        happyHour.dow.includes(dayOfWeek) &&
+        parseTime(happyHour.time.split('-')[0]) > currentHour
+    );
+
+    if (upcomingHappyHour) {
+        const startTime = parseTime(upcomingHappyHour.time.split('-')[0]);
+        const minutesUntilStart = Math.floor((startTime - currentHour) / 100) * 60 + 
+                                (startTime % 100) - (currentHour % 100);
+        return minutesUntilStart;
+    }
+
+    return null;
+    };
+
+    const parseTime = (timeString: string) => {
+        const [hours, minutes] = timeString.split(':').map(Number);
+        return hours * 100 + minutes;
+    };
+
+    const formatCountdown = (minutes: number) => {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        return `${hours}h ${mins}m`;
+    };
   
     const searchFiltered = deals.filter(restaurant =>
-      searchTerm === '' || 
-      restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      restaurant.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      Object.values(restaurant.specials).flat().some(special => 
-        special.toLowerCase().includes(searchTerm.toLowerCase())
-      ) ||
-      restaurant.happyHours.some(happyHour => 
-        happyHour.specials.some(special => 
+        searchTerm === '' || 
+        restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        restaurant.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        Object.values(restaurant.specials).flat().some(special => 
           special.toLowerCase().includes(searchTerm.toLowerCase())
+        ) ||
+        restaurant.happyHours.some(happyHour => 
+          happyHour.specials.some(special => 
+            special.toLowerCase().includes(searchTerm.toLowerCase())
+          )
         )
-      )
-    );
-  
-    const filteredDeals = selectedDay
-      ? searchFiltered.filter(restaurant =>
-          restaurant.specials[selectedDay]?.length > 0 ||
-          restaurant.happyHours.some(happyHour => happyHour.dow.includes(selectedDay))
-        )
-      : searchFiltered;
+      );
+    
+      const filteredDeals = selectedDay
+        ? searchFiltered.filter(restaurant =>
+            restaurant.specials[selectedDay]?.length > 0 ||
+            restaurant.happyHours.some(happyHour => happyHour.dow.includes(selectedDay))
+          )
+        : searchFiltered;
   
     return (
       <div className="p-4 max-w-6xl mx-auto">
@@ -342,10 +397,21 @@ const HappyHourNavigator: React.FC = () => {
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredDeals.map(restaurant => (
-            <Card key={restaurant.id}>
+            <Card key={restaurant.id} className={isHappyHourActive(restaurant) ? 'border-green-500 border-2' : ''}>
               <CardHeader>
-                <CardTitle>{restaurant.name}</CardTitle>
+                <div className="flex justify-between items-center">
+                    <CardTitle>{restaurant.name}</CardTitle>
+                    <Clock className="h-6 w-6" />
+                </div>
                 <p>{restaurant.location}</p>
+                {isHappyHourActive(restaurant) && (
+                    <Badge variant="secondary" className="mt-2">Happy Hour Active!</Badge>
+                )}
+                {!isHappyHourActive(restaurant) && getTimeUntilNextHappyHour(restaurant) !== null && (
+                    <Badge variant="outline" className="mt-2">
+                    Next Happy Hour in {formatCountdown(getTimeUntilNextHappyHour(restaurant)!)}
+                    </Badge>
+                )}
               </CardHeader>
               <CardContent>
                 {selectedDay ? (
@@ -412,19 +478,41 @@ const HappyHourNavigator: React.FC = () => {
                   </>
                 )}
   
-                <Accordion type="single" collapsible className="w-full mb-4">
-                  <AccordionItem value="item-3">
-                    <AccordionTrigger>Opening Hours</AccordionTrigger>
-                    <AccordionContent>
-                      {Object.entries(restaurant.openHours).map(([day, hours]) => (
-                        <p key={day} className="mb-1">
-                          <span className="font-semibold capitalize">{day}: </span>
-                          {formatTime(hours.open)} - {formatTime(hours.close)}
+  <Accordion type="single" collapsible className="w-full mb-4">
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>Daily Specials</AccordionTrigger>
+                  <AccordionContent>
+                    {Object.entries(restaurant.specials).map(([day, specials]) => (
+                      <div key={day} className="mb-2">
+                        <h4 className="font-semibold capitalize">{day}</h4>
+                        <ul className="list-disc list-inside">
+                          {specials.map((special, index) => (
+                            <li key={index}>{special}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger>Happy Hours</AccordionTrigger>
+                  <AccordionContent>
+                    {restaurant.happyHours.map((happyHour, index) => (
+                      <div key={index} className="mb-4">
+                        <h4 className="font-semibold">{happyHour.time}</h4>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {happyHour.dow.map(day => day.charAt(0).toUpperCase() + day.slice(1)).join(', ')}
                         </p>
-                      ))}
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                        <ul className="list-disc list-inside">
+                          {happyHour.specials.map((special, specialIndex) => (
+                            <li key={specialIndex}>{special}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
   
                 <div className="mb-4">
                   <p className="flex items-center mb-2">
