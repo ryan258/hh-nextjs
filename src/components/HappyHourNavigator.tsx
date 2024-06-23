@@ -11,144 +11,97 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Restaurant } from '@/types/restaurantTypes';
 
-type OpenHours = {
-    open: number;
-    close: number;
-  };
-  
-  type DaySpecials = string[];
-  
-  type HappyHour = {
-    time: string;
-    specials: string[];
-    dow: string[];
-  };
-  
-  type Restaurant = {
-    id: string;
-    name: string;
-    location: string;
-    address: string;
-    phone: string;
-    website: string;
-    facebook?: string;
-    instagram?: string;
-    googleMap: string;
-    cuisine: string[];
-    priceRange: string;
-    rating?: number;
-    reviews?: number;
-    description?: string;
-    restrictions?: string;
+const sampleDeals: Restaurant[] = [
+  {
+    id: "twinpeaksrogers",
+    name: "Twin Peaks",
+    location: "Rogers",
+    address: "123 Main St, Rogers, AR 72756", // You'll need to add the correct address
+    phone: "(555) 123-4567", // You'll need to add the correct phone number
+    website: "https://twinpeaksrestaurant.com/locations/rogers-ar",
+    facebook: "https://www.facebook.com/TwinPeaksRogers/",
+    instagram: "https://www.instagram.com/rogerstwinpeaks/",
+    googleMap: "https://www.google.com/maps/place/Twin+Peaks+Rogers/@36.3011917,-94.1738379,15z/data=!4m5!3m4!1s0x0:0xca20801366951863!8m2!3d36.3011917!4d-94.1738379",
+    cuisine: ["American", "Bar Food"],
+    priceRange: "$$",
     openHours: {
-      [key: string]: OpenHours;
-    };
+      monday: { open: 1100, close: 2400 },
+      tuesday: { open: 1100, close: 2400 },
+      wednesday: { open: 1100, close: 2400 },
+      thursday: { open: 1100, close: 2500 },
+      friday: { open: 1100, close: 2600 },
+      saturday: { open: 1100, close: 2600 },
+      sunday: { open: 1100, close: 2400 }
+    },
     specials: {
-      [key: string]: DaySpecials;
-    };
-    happyHours: HappyHour[];
-  };
-
-const HappyHourNavigator = () => {
-  const sampleDeals = [
-    {
-      id: 1,
-      name: "The Rusty Nail",
-      address: "123 Pine St, Downtown, Anytown, USA",
-      phone: "(555) 123-4567",
-      website: "www.therustynail.com",
-      restrictions: "Dine-in only, must be 21+",
-      specials: [
-        {
-          days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
-          hours: [
-            { start: "16:00", end: "19:00", deals: ["$4 Craft Beers", "$6 Signature Cocktails"] },
-            { start: "22:00", end: "23:59", deals: ["$3 Domestic Beers", "$5 Well Drinks"] }
-          ]
-        },
-        {
-          days: ["Saturday", "Sunday"],
-          hours: [
-            { start: "12:00", end: "15:00", deals: ["$5 Bloody Marys", "$5 Mimosas"] }
-          ]
-        }
-      ]
+      monday: ["$3.99 Man Cans", "$2 Domestic Bottles", "$10.99 22oz Twin Peaks Brew & 6 Boneless Wings w/ Fries"],
+      tuesday: ["$3.99 House Ritas", "$2 Domestic Bottles", "$10.99 22oz Mexican Beer & Buffalo Chicken Tacos"],
+      wednesday: ["$3.99 All Wines by the Glass", "$2 Domestic Bottles", "$10.99 22oz Domestic Beers & Cheeseburgers"],
+      thursday: ["$3.99 All Seltzers", "$2 Domestic Bottles", "$10.99 22oz Samuel Adams Seasonal & Chicken Tenders"],
+      friday: ["Bourbon & Brews (5-7pm)", "$3.99 Jim Beam Old Fashioned"],
+      saturday: ["$3.99 Miller Lite & Coors Light", "$10 Peaks Sampler"],
+      sunday: ["$3.99 Miller Lite & Coors Light", "$10 Peaks Sampler", "$2 Domestic Bottles"]
     },
-    {
-      id: 2,
-      name: "Sushi Paradise",
-      address: "456 Cherry Blossom Ave, Midtown, Anytown, USA",
-      phone: "(555) 987-6543",
-      website: "www.sushiparadise.com",
-      restrictions: "Cannot be combined with other offers",
-      specials: [
-        {
-          days: ["Tuesday", "Thursday"],
-          hours: [
-            { start: "17:00", end: "20:00", deals: ["50% off select rolls", "$5 Sake bombs"] }
-          ]
-        },
-        {
-          days: ["Friday"],
-          hours: [
-            { start: "16:00", end: "18:00", deals: ["Buy one roll, get one 50% off"] },
-            { start: "21:00", end: "23:00", deals: ["$3 Beer", "$4 Hot Sake"] }
-          ]
-        }
-      ]
-    },
-    {
-      id: 3,
-      name: "El Taco Loco",
-      address: "789 Spicy Lane, Westside, Anytown, USA",
-      phone: "(555) 246-8135",
-      website: "www.eltacoloco.com",
-      restrictions: "Limited to 6 tacos per person",
-      specials: [
-        {
-          days: ["Monday", "Wednesday", "Friday"],
-          hours: [
-            { start: "15:00", end: "18:00", deals: ["$2 Tacos", "$3 Coronas", "$5 Margaritas"] }
-          ]
-        },
-        {
-          days: ["Tuesday"],
-          hours: [
-            { start: "11:00", end: "14:00", deals: ["$1 Taco Tuesday Lunch Special"] },
-            { start: "18:00", end: "20:00", deals: ["$10 All-You-Can-Eat Taco Tuesday Dinner"] }
-          ]
-        },
-        {
-          days: ["Saturday", "Sunday"],
-          hours: [
-            { start: "12:00", end: "16:00", deals: ["$15 Bottomless Margaritas with food purchase"] }
-          ]
-        }
-      ]
-    }
-  ];
+    happyHours: [
+      {
+        time: "11-3pm: Lunch Combos",
+        specials: ["Lunch Combos Starting at $7.29"],
+        dow: ["monday", "tuesday", "wednesday", "thursday", "friday"]
+      },
+      {
+        time: "3-6pm",
+        specials: ["1/2 Off Appetizers", "$1.50  10oz Domestic Brews", "$2.50  10oz Twin Peaks Brews", "$3 22oz Domestic Brews", "$3.50  22oz Twin Peaks Brews"],
+        dow: ["monday", "tuesday", "wednesday", "thursday", "friday"]
+      },
+      {
+        time: "10pm-Close: Late Night Munchies!",
+        specials: ["1/2 Off Appetizers"],
+        dow: ["sunday", "monday", "tuesday", "wednesday", "thursday"]
+      },
+      {
+        time: "All Day, Every Day!",
+        specials: ["$3.99 Select Shots", "$5 Cocktails"],
+        dow: ["saturday", "sunday", "monday", "tuesday", "wednesday", "thursday", "friday"]
+      }
+    ]
+  }
+  // Add more restaurants here as needed
+];
 
+const HappyHourNavigator: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [deals, setDeals] = useState(sampleDeals);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
+  const [deals, setDeals] = useState<Restaurant[]>(sampleDeals);
 
-  const handleSearch = (event) => {
+  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
   };
 
-  const filteredDeals = deals.filter(deal =>
-    deal.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    deal.specials.some(special => 
-      special.days.some(day => day.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      special.hours.some(hour => 
-        hour.deals.some(deal => deal.toLowerCase().includes(searchTerm.toLowerCase()))
-      )
-    )
+  const handleDaySelect = (day: string) => {
+    setSelectedDay(prevDay => prevDay === day ? null : day);
+  };
+
+  const filteredDeals = deals.filter(restaurant =>
+    (searchTerm === '' || 
+     restaurant.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     restaurant.location.toLowerCase().includes(searchTerm.toLowerCase()) ||
+     Object.values(restaurant.specials).some(daySpecials => 
+       daySpecials.some(special => special.toLowerCase().includes(searchTerm.toLowerCase()))
+     ) ||
+     restaurant.happyHours.some(happyHour => 
+       happyHour.specials.some(special => special.toLowerCase().includes(searchTerm.toLowerCase()))
+     )) &&
+    (selectedDay === null || 
+     restaurant.specials[selectedDay.toLowerCase()] ||
+     restaurant.happyHours.some(happyHour => happyHour.dow.includes(selectedDay.toLowerCase())))
   );
 
-  const formatTime = (time) => {
-    const [hours, minutes] = time.split(':');
-    return new Date(0, 0, 0, hours, minutes).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+  const formatTime = (time: number) => {
+    const hours = Math.floor(time / 100);
+    const minutes = time % 100;
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
   };
 
   return (
@@ -166,44 +119,110 @@ const HappyHourNavigator = () => {
           <Search className="mr-2 h-4 w-4" /> Search
         </Button>
       </div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map((day) => (
+          <Button
+            key={day}
+            variant={selectedDay === day ? "default" : "outline"}
+            onClick={() => handleDaySelect(day)}
+          >
+            {day}
+          </Button>
+        ))}
+      </div>
+      {selectedDay && (
+        <p className="mb-4 text-sm text-gray-600">
+          Showing deals for {selectedDay}. <button onClick={() => setSelectedDay(null)} className="text-blue-600 hover:underline">Clear filter</button>
+        </p>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredDeals.map(deal => (
-          <Card key={deal.id} className="overflow-hidden">
-            <CardHeader className="bg-slate-100">
-              <CardTitle>{deal.name}</CardTitle>
+        {filteredDeals.map(restaurant => (
+          <Card key={restaurant.id}>
+            <CardHeader>
+              <CardTitle>{restaurant.name}</CardTitle>
+              <p>{restaurant.location}</p>
             </CardHeader>
-            <CardContent className="pt-4">
-              <p className="mb-2"><strong>Address:</strong> {deal.address}</p>
-              <div className="flex items-center mb-2">
-                <Phone className="h-4 w-4 mr-2" />
-                <a href={`tel:${deal.phone}`} className="text-blue-600 hover:underline">{deal.phone}</a>
+            <CardContent>
+              <div className="mb-4">
+                <p className="flex items-center mb-2">
+                  <MapPin className="h-4 w-4 mr-2" />
+                  <a href={restaurant.googleMap} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    View on Google Maps
+                  </a>
+                </p>
+                <p className="flex items-center mb-2">
+                  <Phone className="h-4 w-4 mr-2" />
+                  <a href={`tel:${restaurant.phone}`} className="text-blue-600 hover:underline">{restaurant.phone}</a>
+                </p>
+                <p className="flex items-center mb-2">
+                  <Globe className="h-4 w-4 mr-2" />
+                  <a href={restaurant.website} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                    Website
+                  </a>
+                </p>
+                {restaurant.facebook && (
+                  <p className="flex items-center mb-2">
+                    <Facebook className="h-4 w-4 mr-2" />
+                    <a href={restaurant.facebook} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      Facebook
+                    </a>
+                  </p>
+                )}
+                {restaurant.instagram && (
+                  <p className="flex items-center mb-2">
+                    <Instagram className="h-4 w-4 mr-2" />
+                    <a href={restaurant.instagram} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                      Instagram
+                    </a>
+                  </p>
+                )}
               </div>
-              <div className="flex items-center mb-2">
-                <Globe className="h-4 w-4 mr-2" />
-                <a href={`https://${deal.website}`} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{deal.website}</a>
-              </div>
-              <p className="text-sm text-gray-600 italic mb-4">{deal.restrictions}</p>
+
               <Accordion type="single" collapsible className="w-full">
-                {deal.specials.map((special, index) => (
-                  <AccordionItem value={`item-${index}`} key={index}>
-                    <AccordionTrigger>{special.days.join(', ')}</AccordionTrigger>
-                    <AccordionContent>
-                      {special.hours.map((hour, hourIndex) => (
-                        <div key={hourIndex} className="mb-2">
-                          <p className="flex items-center text-sm text-gray-600">
-                            <Clock className="h-4 w-4 mr-2" />
-                            {formatTime(hour.start)} - {formatTime(hour.end)}
-                          </p>
-                          <ul className="list-disc list-inside">
-                            {hour.deals.map((deal, dealIndex) => (
-                              <li key={dealIndex}>{deal}</li>
-                            ))}
-                          </ul>
-                        </div>
-                      ))}
-                    </AccordionContent>
-                  </AccordionItem>
-                ))}
+                <AccordionItem value="item-1">
+                  <AccordionTrigger>Daily Specials</AccordionTrigger>
+                  <AccordionContent>
+                    {Object.entries(restaurant.specials).map(([day, specials]) => (
+                      <div key={day} className="mb-2">
+                        <h4 className="font-semibold capitalize">{day}</h4>
+                        <ul className="list-disc list-inside">
+                          {specials.map((special, index) => (
+                            <li key={index}>{special}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-2">
+                  <AccordionTrigger>Happy Hours</AccordionTrigger>
+                  <AccordionContent>
+                    {restaurant.happyHours.map((happyHour, index) => (
+                      <div key={index} className="mb-4">
+                        <h4 className="font-semibold">{happyHour.time}</h4>
+                        <p className="text-sm text-gray-600 mb-1">
+                          {happyHour.dow.map(day => day.charAt(0).toUpperCase() + day.slice(1)).join(', ')}
+                        </p>
+                        <ul className="list-disc list-inside">
+                          {happyHour.specials.map((special, specialIndex) => (
+                            <li key={specialIndex}>{special}</li>
+                          ))}
+                        </ul>
+                      </div>
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
+                <AccordionItem value="item-3">
+                  <AccordionTrigger>Opening Hours</AccordionTrigger>
+                  <AccordionContent>
+                    {Object.entries(restaurant.openHours).map(([day, hours]) => (
+                      <p key={day} className="mb-1">
+                        <span className="font-semibold capitalize">{day}: </span>
+                        {formatTime(hours.open)} - {formatTime(hours.close)}
+                      </p>
+                    ))}
+                  </AccordionContent>
+                </AccordionItem>
               </Accordion>
             </CardContent>
           </Card>
